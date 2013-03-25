@@ -1,30 +1,11 @@
 package com.swmaestro.phonecontroller;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-
-import com.swmaestro.phonecontroller.R;
-import com.swmaestro.phonecontroller.bluetooth.Bluetooth;
-import com.swmaestro.phonecontroller.bluetooth.BluetoothConnect;
-import com.swmaestro.phonecontroller.common.*;
-import com.swmaestro.phonecontroller.sensor.ISensor;
-import com.swmaestro.phonecontroller.ui.UIManager;
-import com.swmaestro.phonecontroller.wifi.IWifi;
-import com.swmaestro.phonecontroller.wifi.IWifiUDP;
-
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-
-
-import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.content.Context;
-import android.content.IntentFilter;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -34,6 +15,13 @@ import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.swmaestro.phonecontroller.bluetooth.BluetoothConnect;
+import com.swmaestro.phonecontroller.common.DataStructure;
+import com.swmaestro.phonecontroller.common.Util;
+import com.swmaestro.phonecontroller.sensor.ISensor;
+import com.swmaestro.phonecontroller.ui.UIManager;
+import com.swmaestro.phonecontroller.wifi.IWifiUDP;
 
 public class Intro extends Activity {
 	Context c;
@@ -111,7 +99,7 @@ public class Intro extends Activity {
         mSensor.calibrateOri();
 		UIManager uiManager = UIManager.getInstance();
 		uiManager.setHandler(mHandler);
-		uiManager.showController(c, "test1", "ui");
+		uiManager.showController(c, "racing", "ui");
     }
 
     @Override
