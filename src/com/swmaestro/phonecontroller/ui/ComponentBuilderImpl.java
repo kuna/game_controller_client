@@ -3,7 +3,6 @@ package com.swmaestro.phonecontroller.ui;
 import java.util.HashMap;
 import java.util.List;
 
-import com.swmaestro.phonecontroller.ui.components.GButton;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -11,7 +10,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
+
+import com.swmaestro.phonecontroller.ui.components.GButton;
 
 @SuppressWarnings("deprecation")
 public class ComponentBuilderImpl implements ComponentBuilder{
@@ -22,7 +24,7 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		this.context = context;
 		this.uiResManager = uiResManager;
 		this.layout = new AbsoluteLayout(context);
-		
+		//layout.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0, 0));
 		for(HashMap<String, String> component : components) {
 			if (component.get("component").equals("Layout")) {
 				setLayoutAttributes(component);
@@ -35,11 +37,18 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		return layout;
 	}
 	
-	private void setLayoutAttributes(HashMap<String, String> component) {
+	private void setLayoutAttributes(HashMap<String, String> component) throws Exception {
 		((Activity)context).setTheme(android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
 		((Activity)context).setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		if (component.get("orientation").equals("LANDSCAPE")) {
 			((Activity)context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+		}
+		if (component.get("background") != null) {
+			String resPath = uiResManager.getResourceAbsolutePath(component.get("background"));
+			if (resPath == null)
+				throw new Exception(component.get("background")  + " does not exist");
+			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
+			layout.setBackgroundDrawable(bd);
 		}
 	}
 
