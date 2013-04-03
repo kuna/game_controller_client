@@ -2,14 +2,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
-
-    <TextView
-        android:id="@+id/textView1"
+    
+	
+	
+    <Button
+        android:id="@+id/btnGogun"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Controller Sample Logo"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_marginTop="55dp"
+        android:text="Gogun" />
+
+    <Button
+        android:id="@+id/btnRacing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btnClose"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp"
+        android:text="Racing" />
+
 
 </RelativeLayout>

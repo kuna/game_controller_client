@@ -1,19 +1,19 @@
 package com.swmaestro.phonecontroller;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.swmaestro.phonecontroller.bluetooth.BluetoothConnect;
@@ -33,12 +33,13 @@ public class Intro extends Activity {
 	ISensor mSensor;
 
     @Override
-    // 1. oncreate ÀÌÈÄ Data °è¼Ó È®ÀÎÇÏ´Â ¾²·¹µå µ¹¸®±â
-    // 2. ¸Ş¼­µå Á¶±İ ´õ Ã¼°èÈ­ ½ÃÄÑº¸±â... ÀÏ´Ü ºí·çÅõ½º ±â±â Ã£´Âµ¥±îÁö °í·Á
+    // 1. oncreate Â¿ÃƒÂ»Æ’ Data âˆÃ‹Âºâ€ Â»Ã†Â¿Å’Â«Å“Â¥Â¬ Ã¦â‰¤âˆ‘Ï€ÂµÃ‚ ÂµÏ€âˆÃ†Â±â€š
+    // 2. âˆï¬Âºâ‰ ÂµÃ‚ Â¡âˆ‚Â±â€º Â¥Ä± âˆšÂºâˆÃ‹Â»â‰  Î©âˆšÆ’â€”âˆ«âˆÂ±â€š... Â¿Å“Â¥â€¹ âˆ«ÃŒâˆ‘Ãâ‰ˆÄ±Î©âˆ« Â±â€šÂ±â€š âˆšÂ£Â¥Â¬Âµâ€¢Â±Ã“Â¡Ë† âˆÃŒâˆ‘Â¡
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
 
+        
         mHandler = new Handler () {
         	public void handleMessage(Message m) {
         		if (m.what == BluetoothConnect.MESSAGE_READ) {
@@ -97,9 +98,38 @@ public class Intro extends Activity {
         
         // auto cali, auto connect, auto ui
         mSensor.calibrateOri();
-		UIManager uiManager = UIManager.getInstance();
+        /*
+        UIManager uiManager = UIManager.getInstance();
 		uiManager.setHandler(mHandler);
 		uiManager.showController(c, "racing", "ui");
+		*/
+		setupButtonEvent();
+		
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Server IP ì„¤ì •");
+		alert.setMessage("IP Address");
+
+		// Set an EditText view to get user input
+		final EditText input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Util.SERVER_IP = input.getText().toString();
+				// Do something with value!
+			}
+		});
+
+
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
+		
+		alert.show();
     }
 
     @Override
@@ -118,11 +148,11 @@ public class Intro extends Activity {
     
     @Override
     public void onBackPressed() {
-    	close();
+    	//close();
     }
     
     public void close() {
-		mSensor.stopSensor();
+    	mSensor.stopSensor();
 		mWifi.close();
 		finish();
     }
@@ -130,96 +160,22 @@ public class Intro extends Activity {
     Handler mHandler;
     public void setupButtonEvent()
     {
-
-        // auto cali, auto connection, auto controller setup
-        Button b1 = null;//(Button)findViewById(R.id.btnConnect);
-        b1.setOnClickListener(new OnClickListener() {
+    	Button b1 = (Button)findViewById(R.id.btnGogun);
+    	b1.setOnClickListener(new OnClickListener() {
+			public void onClick(View arg0) {      
+				UIManager uiManager = UIManager.getInstance();
+				uiManager.setHandler(mHandler);
+				uiManager.showController(c, "gogun", "ui");
+			}
+        });
+        
+    	Button b2 = (Button)findViewById(R.id.btnRacing);
+    	b2.setOnClickListener(new OnClickListener() {
 			public void onClick(View arg0) {
 				UIManager uiManager = UIManager.getInstance();
 				uiManager.setHandler(mHandler);
-				uiManager.showController(c, "test1", "ui");
-				//Toast.makeText(c, "Waiting for Connection", Toast.LENGTH_SHORT).show();
-				//mWifi.Connect("192.168.0.33", 1234);				
-				
-				Toast.makeText(c, "UDP Dont need to be Connected", Toast.LENGTH_SHORT).show();
-				
-				/*
-				 * BLUETOOTH
-				 * 
-				Toast.makeText(c, "Wait for search Device", Toast.LENGTH_SHORT).show();
-				
-				// add receiver
-				IntentFilter filter;
-				filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-				c.registerReceiver(mBt.mReceiver, filter);
-				filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-				c.registerReceiver(mBt.mReceiver, filter);
-				
-				// search Device .. automatically connect
-				mBt.SearchDevice();
-				*/
+				uiManager.showController(c, "racing", "ui");
 			}
         });
-        
-        Button b2 = null;//(Button)findViewById(R.id.btnSend);
-        b2.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				Toast.makeText(c, "test", Toast.LENGTH_SHORT).show();
-				
-				mWifi.SendData("test\n");
-				/*
-				 * BLUETOOTH
-				 * 
-				 * DataStructure mDs = new DataStructure();
-				mDs.event = 0;
-				mDs.param = 0;
-				mDs.detail = "";
-				
-				mBt.SendData(mDs.GetByte());*/
-				//mBtc.write(mDs.GetByte());
-			}
-	    });
-
-        Button b3 = null;//(Button)findViewById(R.id.btnClose);
-        b3.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-				mSensor.stopSensor();
-				mWifi.close();
-				finish();
-				
-				//mBt.CloseSocket();
-			}
-        });
-        
-        Button b4 = null;//(Button)findViewById(R.id.btnCali);
-        b4.setOnClickListener(new OnClickListener() {
-			public void onClick(View arg0) {
-				mSensor.calibrateOri();
-			}
-        });
-        
-        Button b5 = null;//(Button)findViewById(R.id.btnUp)  ;
-        b5.setOnTouchListener(new OnTouchListener() {
-			public boolean onTouch(View arg0, MotionEvent arg1) {
-				if (arg1.getAction() == MotionEvent.ACTION_DOWN) {
-					Log.v("TEST", "DOWN");
-        			DataStructure mDs = new DataStructure();
-        			mDs.event = Util.EVENT_BUTTON_DOWN;
-        			mDs.param = 0;
-        			mDs.detail = "test";
-        			mWifi.SendData(mDs.GetString());
-					
-				}
-				if (arg1.getAction() == MotionEvent.ACTION_UP) {
-					Log.v("TEST", "UP");
-        			DataStructure mDs = new DataStructure();
-        			mDs.event = Util.EVENT_BUTTON_UP;
-        			mDs.param = 0;
-        			mDs.detail = "test";
-        			mWifi.SendData(mDs.GetString());
-				}
-				return false;
-			}
-		});
     }
 }
