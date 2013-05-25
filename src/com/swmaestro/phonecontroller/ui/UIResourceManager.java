@@ -25,7 +25,8 @@ public class UIResourceManager {
 	public String getUIResourceAbsolutePath() {
 		if (extStorageAbsPath == null)
 			return null;
-		
+
+		Log.i("UIResPath", extStorageAbsPath + File.separator + uiResourceDir);
 		File resPath = new File(extStorageAbsPath + File.separator + uiResourceDir);
 		if (!resPath.exists())
 			return null;
@@ -47,7 +48,8 @@ public class UIResourceManager {
 		String uiResAbsPath = null;
 		if ((uiResAbsPath = getUIResourceAbsolutePath()) == null)
 			return null;
-		
+
+		Log.i("GameUIResPath", uiResAbsPath + File.separator + gameName);
 		File resPath = new File(uiResAbsPath + File.separator + gameName);
 		if (!resPath.exists())
 			return null;

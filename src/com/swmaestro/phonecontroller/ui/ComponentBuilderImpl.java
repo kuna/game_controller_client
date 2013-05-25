@@ -14,6 +14,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
 
 import com.swmaestro.phonecontroller.ui.components.GButton;
+import com.swmaestro.phonecontroller.ui.components.GTextView;
 
 @SuppressWarnings("deprecation")
 public class ComponentBuilderImpl implements ComponentBuilder{
@@ -24,7 +25,7 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		this.context = context;
 		this.uiResManager = uiResManager;
 		this.layout = new AbsoluteLayout(context);
-		//layout.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0, 0));
+		layout.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0, 0));
 		for(HashMap<String, String> component : components) {
 			if (component.get("component").equals("Layout")) {
 				setLayoutAttributes(component);
@@ -32,6 +33,10 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			if (component.get("component").equals("Button")) {
 				GButton btn = new GButton(context);
 				setButtonAttributes(btn, component);
+			}
+			if (component.get("component").equals("TextView")) {
+				GTextView btn = new GTextView(context);
+				setTextViewAttributes(btn, component);
 			}
 		}
 		return layout;
@@ -78,7 +83,6 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		}
 		int y = Integer.parseInt(component.get("y"));
 		
-		
 		if (component.get("text") != null)
 			btn.setText((CharSequence)component.get("text"));
 		
@@ -107,6 +111,46 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		
 		if (component.get("key") != null) {
 			btn.setKey(component.get("key"));
+		}
+		
+		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));
+	}
+
+	private void setTextViewAttributes(final GTextView btn, HashMap<String, String> component) throws Exception {
+		if (component.get("id") == null) {
+			throw new Exception("TextView ID must be described!");
+		}
+		btn.setId(Integer.parseInt(component.get("id")));
+		
+		if (component.get("height") == null) {
+			throw new Exception("Height of button must be described!");
+		}
+		int height = Integer.parseInt(component.get("height"));
+		
+		if (component.get("width") == null) {
+			throw new Exception("Width of button must be described!");
+		}
+		int width = Integer.parseInt(component.get("width"));
+		
+		if (component.get("x") == null) {
+			throw new Exception("x must be described!");
+		}
+		int x = Integer.parseInt(component.get("x"));
+		
+		if (component.get("y") == null) {
+			throw new Exception("y must be described!");
+		}
+		int y = Integer.parseInt(component.get("y"));
+		
+		if (component.get("text") != null)
+			btn.setText((CharSequence)component.get("text"));
+		
+		if (component.get("background") != null) {
+			String resPath = uiResManager.getResourceAbsolutePath(component.get("background"));
+			if (resPath == null)
+				throw new Exception(component.get("background")  + " does not exist");
+			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
+			btn.setBackgroundImg(bd);
 		}
 		
 		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));

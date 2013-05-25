@@ -14,16 +14,25 @@ import java.io.ObjectOutputStream;
  */
 
 public class DataStructure {
+	public String id;
 	public int event;
-	public int param;
 	public String detail;
 	
+	public DataStructure() {
+		id = Util.CONN_ID;
+	}
+	
 	public byte[] GetByte() {
-		String msg = String.format("%d#%d#%s\n", event,param,detail);
-		return msg.getBytes();
+		return GetString().getBytes();
 	}
 	
 	public String GetString() {
-		return String.format("%d#%d#%s\n", event,param,detail);
+		id = Util.CONN_ID;
+		return String.format("EVENT %s %d %s\n", id, event, detail);
+	}
+	
+	public String GetString(String attr) {
+		id = Util.CONN_ID;
+		return String.format("EVENT %s %s %s\n", id, attr, detail);
 	}
 }

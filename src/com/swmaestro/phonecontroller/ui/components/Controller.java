@@ -1,6 +1,6 @@
 package com.swmaestro.phonecontroller.ui.components;
 
-import com.swmaestro.phonecontroller.R;
+///import com.swmaestro.phonecontroller.R;
 import com.swmaestro.phonecontroller.ui.ControllerEventListener;
 import com.swmaestro.phonecontroller.ui.UIManager;
 import com.swmaestro.phonecontroller.ui.model.ControllerEvent;
@@ -11,6 +11,8 @@ import android.view.View;
 import android.widget.Toast;
 
 public class Controller extends Activity implements ControllerEventListener{
+	public static Activity ConActivity = null;
+	
 	private UIManager uiManager = UIManager.getInstance();	
 	private Toast toast;
 	@Override
@@ -20,6 +22,8 @@ public class Controller extends Activity implements ControllerEventListener{
 		uiManager.setControllerEventListener(this);
 		View view = uiManager.getLayout(this);
 		setContentView(view);
+		
+		ConActivity = this;
 	}
 
 	@Override

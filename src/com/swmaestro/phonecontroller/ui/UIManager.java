@@ -38,11 +38,12 @@ public class UIManager {
 		return uiManager;
 	}
 	
-	public void showController(Context context, String gameName, String uiXmlFileName) {
+	public Intent showController(Context context, String gameName, String uiXmlFileName) {
 		this.uiXmlFileName = uiXmlFileName;
 		uiResManager.prepareUIResource(gameName);
 		Intent intent = new Intent(context, Controller.class);
     	context.startActivity(intent);
+    	return intent;
 	}
 	
 	public View getLayout(Context context) {
@@ -52,12 +53,16 @@ public class UIManager {
     		UIXmlParser xmlParser = new UIXmlParserImpl();
     		ComponentBuilder componentBuilder = new ComponentBuilderImpl();
     		List<HashMap<String, String>> components = null;
+    		String absolutePath = uiResManager.getGameUIResourceAbsolutePath();
+    		if (absolutePath == null) {
+    			throw new Exception("Unable to find Absolute Path");
+    		}
     		String xmlFilePath = uiResManager.getGameUIResourceAbsolutePath() + File.separator + uiXmlFileName + ".xml";
     		Log.v("UIManager", "Loading " + xmlFilePath);
         	reader = getXmlData(xmlFilePath);
         	components = xmlParser.parse(reader);
         	layout = componentBuilder.buildLayout(context, components, uiResManager);
-        }catch(Exception e){
+        } catch(Exception e) {
         	Log.d("Exception",e.toString());
         }
 		return layout;

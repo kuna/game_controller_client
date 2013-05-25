@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+
+import com.swmaestro.phonecontroller.common.Util;
 
 import android.os.Handler;
 import android.util.Log;
@@ -28,15 +31,16 @@ public class IWifi {
 	private BufferedWriter m_nWriter;
 	private IWifiThread m_WThread;
 	
-	private Handler mHandler;
+	private static ArrayList<Handler> mHandler = new ArrayList<Handler>();
 
-	public boolean Initalize(Handler h) {
-		m_WThread = new IWifiThread();
-		mHandler = h;
-		return true;
+	public IWifi() {
 	}
 	
-	public boolean Connect(String ip, int port) {
+	public static void AddHandler(Handler h) {
+		mHandler.add(h);
+	}
+	
+	public void Connect(String ip, int port) {
 		s_ip = ip;
 		s_port = port;
 		
@@ -47,24 +51,29 @@ public class IWifi {
 					Log.v("WIFI", "Func Executed");
 					
 					socket = new Socket(s_ip, s_port);
+					socket.setTcpNoDelay(true);		
 					m_nWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 					m_nReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
 					Log.i("WIFI", "Connection Established");
+					m_WThread = new IWifiThread();
 					m_WThread.Initalize(mHandler, m_nReader);
 					m_WThread.start();
+					
+					// send event
+					for (int i=0; i<mHandler.size(); i++)
+						mHandler.get(i).obtainMessage(Util.CONN_SUCCESS, 0, 0, null).sendToTarget();
 				} catch (Exception e) {
 					e.printStackTrace();
 					Log.e("WIFI", "Connection Initalize Error");
+					
+					// send event
+					for (int i=0; i<mHandler.size(); i++)
+						mHandler.get(i).obtainMessage(Util.CONN_FAIL, 0, 0, null).sendToTarget();
 				}
 			}
 		};
 		_t.start();
-		
-		return true;
-	}
-	
-	public void ConnectThread() {
 	}
 	
 	public boolean SendData(String str) {
@@ -74,7 +83,10 @@ public class IWifi {
 		out.flush();
 		return true;
 	}
-
+	
+	public boolean close() {
+		return Disconnect();
+	}
 	public boolean Disconnect() {
 		try {
 			m_WThread.interrupt();

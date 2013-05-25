@@ -6,7 +6,7 @@
 	
 	
     <Button
-        android:id="@+id/btnGogun"
+        android:id="@+id/btngogun"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -15,10 +15,9 @@
         android:text="Gogun" />
 
     <Button
-        android:id="@+id/btnRacing"
+        android:id="@+id/btnracing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/btnClose"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="15dp"
         android:text="Racing" />

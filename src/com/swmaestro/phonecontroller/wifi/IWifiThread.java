@@ -1,6 +1,7 @@
 package com.swmaestro.phonecontroller.wifi;
 
 import java.io.BufferedReader;
+import java.util.ArrayList;
 
 import com.swmaestro.phonecontroller.common.Util;
 
@@ -8,10 +9,10 @@ import android.os.Handler;
 import android.util.Log;
 
 public class IWifiThread extends Thread {
-	Handler mHandler;
+	ArrayList<Handler> mHandler;
 	BufferedReader m_br;
 	
-	public void Initalize(Handler h, BufferedReader b) {
+	public void Initalize(ArrayList<Handler> h, BufferedReader b) {
 		mHandler = h;
 		m_br = b;
 	}
@@ -22,10 +23,22 @@ public class IWifiThread extends Thread {
 		while (!this.isInterrupted()) {
 			try {
 				String line = m_br.readLine();
+				if (line == null) {
+					Log.e("WIFITHREAD", "Disconnected");
+					for (int i=0; i<mHandler.size(); i++)
+						mHandler.get(i).obtainMessage(Util.CONN_CLOSE, 0, 0, null).sendToTarget();
+					this.interrupt();
+					break;
+				}
 				Log.i("WIFITHREAD", line);
-				mHandler.obtainMessage(Util.EVENT_RECV, 0, 0, line).sendToTarget();
+				for (int i=0; i<mHandler.size(); i++)
+					mHandler.get(i).obtainMessage(Util.EVENT_RECV, 0, 0, line).sendToTarget();
 			} catch (Exception e) {
+				e.printStackTrace();
 				Log.e("WIFITHREAD", "Error during Socket Connection. stop Thread.");
+
+				for (int i=0; i<mHandler.size(); i++)
+					mHandler.get(i).obtainMessage(Util.CONN_CLOSE, 0, 0, null).sendToTarget();
 				this.interrupt();
 				break;
 			}

@@ -18,7 +18,7 @@ public class IWifiUDP {
 	
 	public void Initialize(Handler h) {
 		try {
-			socket = new DatagramSocket(Util.PORT);
+			socket = new DatagramSocket(Util.SERVER_PORT);
 			mHandler = h;
 			
 			// start thread
@@ -57,7 +57,7 @@ public class IWifiUDP {
 		Thread t = new Thread() {
 			public void run() {
 				try {
-					DatagramPacket packet = new DatagramPacket(s.getBytes(), s.getBytes().length, InetAddress.getByName(Util.SERVER_IP), Util.PORT);
+					DatagramPacket packet = new DatagramPacket(s.getBytes(), s.getBytes().length, InetAddress.getByName(Util.SERVER_IP), Util.SERVER_PORT);
 					socket.send(packet);
 				} catch (Exception e) {
 					e.printStackTrace();

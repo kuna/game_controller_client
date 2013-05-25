@@ -9,6 +9,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
+import android.util.Log;
 
 /* 1. 센서매니저를 호출
  * 2. 센서값 변환 시마다 센서값을 저장 및 핸들ㄹ로 호출하기
@@ -85,6 +86,7 @@ public class ISensor {
 					}
 					sleep(Util.THREAD_DELAY);
 				} catch (InterruptedException e) {
+					/* Normal Closing */
 					e.printStackTrace();
 				}
 			}
