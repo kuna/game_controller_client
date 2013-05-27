@@ -6,9 +6,11 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
@@ -21,12 +23,15 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 	private Context context;
 	private AbsoluteLayout layout;
 	private UIResourceManager uiResManager;
+	public static Bitmap layoutBitmap ;
+	
 	public View buildLayout(Context context, List<HashMap<String, String>> components, UIResourceManager uiResManager) throws Exception {
 		this.context = context;
 		this.uiResManager = uiResManager;
 		this.layout = new AbsoluteLayout(context);
 		layout.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0, 0));
 		for(HashMap<String, String> component : components) {
+			Log.i("LAYOUTCREATE", component.get("component"));
 			if (component.get("component").equals("Layout")) {
 				setLayoutAttributes(component);
 			}
@@ -52,7 +57,14 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			String resPath = uiResManager.getResourceAbsolutePath(component.get("background"));
 			if (resPath == null)
 				throw new Exception(component.get("background")  + " does not exist");
-			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
+			
+			if (layoutBitmap != null) {
+				layoutBitmap.recycle();
+				layoutBitmap = null;
+			}
+			
+			layoutBitmap = BitmapFactory.decodeFile(resPath); // bitmap should be recycled
+			BitmapDrawable bd = new BitmapDrawable(layoutBitmap);
 			layout.setBackgroundDrawable(bd);
 		}
 	}
@@ -90,16 +102,14 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			String resPath = uiResManager.getResourceAbsolutePath(component.get("background"));
 			if (resPath == null)
 				throw new Exception(component.get("background")  + " does not exist");
-			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
-			btn.setBackgroundImg(bd);
+			btn.setBackgroundImg(BitmapFactory.decodeFile(resPath));
 		}
 		
 		if (component.get("pressed") != null) {
 			String resPath = uiResManager.getResourceAbsolutePath(component.get("pressed"));
 			if (resPath == null)
 				throw new Exception(component.get("background")  + " does not exist");
-			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
-			btn.setPressedImg(bd);
+			btn.setPressedImg(BitmapFactory.decodeFile(resPath));
 		}
 		
 		if (component.get("sound") != null) {
@@ -117,6 +127,8 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 	}
 
 	private void setTextViewAttributes(final GTextView btn, HashMap<String, String> component) throws Exception {
+		Log.v("TEXTVIEW", "CREATE");
+		
 		if (component.get("id") == null) {
 			throw new Exception("TextView ID must be described!");
 		}
@@ -149,8 +161,17 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			String resPath = uiResManager.getResourceAbsolutePath(component.get("background"));
 			if (resPath == null)
 				throw new Exception(component.get("background")  + " does not exist");
-			BitmapDrawable bd = new BitmapDrawable(BitmapFactory.decodeFile(resPath));
-			btn.setBackgroundImg(bd);
+			btn.setBackgroundImg(BitmapFactory.decodeFile(resPath));
+		}
+		
+		if (component.get("color") != null) {
+			// proc color from 0x16 integer
+		} else {
+			btn.setTextColor(0xFFFFFFFF);
+		}
+		
+		if (component.get("size") != null) {
+			btn.setTextSize( Float.parseFloat(component.get("size") ));
 		}
 		
 		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));

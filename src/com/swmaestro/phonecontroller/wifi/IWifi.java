@@ -89,7 +89,7 @@ public class IWifi {
 	}
 	public boolean Disconnect() {
 		try {
-			m_WThread.interrupt();
+			if (m_WThread!=null) m_WThread.interrupt();
 			m_nWriter = null;
 			socket.close();
 		} catch (Exception e) {

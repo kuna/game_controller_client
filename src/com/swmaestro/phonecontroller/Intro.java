@@ -63,7 +63,7 @@ public class Intro extends Activity {
         				v.vibrate(500);
         			}
         			if (args[0].equals("ERROR")) {
-        				this.obtainMessage(Util.EVENT_ERROR, 0, 0, null).sendToTarget();
+        				this.obtainMessage(Util.EVENT_ERROR, 0, 0, args[1]).sendToTarget();
         			}
         			if (args[0].equals("OK")) {
         				if (args[1].equals("JOIN")) {
@@ -84,6 +84,10 @@ public class Intro extends Activity {
         				this.obtainMessage(Util.CONN_QUIT, 0, 0, args).sendToTarget();
         			}
         			break;
+        		case Util.EVENT_ERROR:
+        			dlg_Loading.hideLoading();
+        			Toast.makeText(c, "An Error occured.", Toast.LENGTH_SHORT).show();
+        			break;
         		case Util.EVENT_SENSOR_ACCL:
         			mDs = new DataStructure();
         			mDs.event = m.what;
@@ -100,12 +104,14 @@ public class Intro extends Activity {
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
+        			Log.v("BUTTON", mDs.GetString());
         			mWifi.SendData(mDs.GetString());
         			break;
         		case Util.EVENT_BUTTON_UP:
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
+        			Log.v("BUTTON", mDs.GetString());
         			mWifi.SendData(mDs.GetString());
         			break;
         		case Util.CONN_QUIT:
@@ -120,7 +126,7 @@ public class Intro extends Activity {
         			/*
         			 * return to Initalized status
         			 */
-        			Toast.makeText(c, "Closed by server", Toast.LENGTH_SHORT).show();
+        			Toast.makeText(c, "QUIT from game", Toast.LENGTH_SHORT).show();
         			
         			if (mSensor != null) mSensor.stopSensor();
         			
@@ -134,11 +140,11 @@ public class Intro extends Activity {
         			AlertDialog.Builder alert = new AlertDialog.Builder(c);
 
     				alert.setTitle("Server Disconnected");
-    				alert.setMessage("Connection disconnected by Command QUIT.");
+    				alert.setMessage("Connection disconnected.");
 
     				alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
     					public void onClick(DialogInterface dialog, int whichButton) {
-    						finish();
+    						close();
     					}
     				});
 
@@ -146,7 +152,7 @@ public class Intro extends Activity {
         			break;
         		case Util.CONN_FAIL:
         			dlg_Loading.hideLoading();
-        			Toast.makeText(c, "Failed to connect server", Toast.LENGTH_SHORT);
+        			Toast.makeText(c, "Failed to connect server", Toast.LENGTH_SHORT).show();
         			close();
         			break;
         		case Util.CONN_SUCCESS:
@@ -237,6 +243,30 @@ public class Intro extends Activity {
         mWifi = new IWifi();
         IWifi.AddHandler(mHandler);
         mWifi.Connect(Util.SERVER_IP, Util.SERVER_PORT);
+        
+        /*
+         * Test case start
+         * 
+         * 
+        Thread t = new Thread() {
+        	public void run() {
+        		try {
+        			mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "select"}).sendToTarget();
+					Thread.sleep(3000);
+        			//mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "sdfasd"}).sendToTarget();
+					//Thread.sleep(3000);
+        			mHandler.obtainMessage(Util.EVENT_EDIT, 0, 0, new String[]{"", "", "1001", "button", "x", "10"}).sendToTarget();
+					Thread.sleep(3000);
+        			mHandler.obtainMessage(Util.EVENT_EDIT, 0, 0, new String[]{"", "", "103425", "button", "x", "10"}).sendToTarget();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+        	}
+        };
+        t.start();
+         * 
+         * Test case end
+         */
     }
 
     @Override

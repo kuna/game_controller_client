@@ -14,13 +14,17 @@ public class Controller extends Activity implements ControllerEventListener{
 	public static Activity ConActivity = null;
 	
 	private UIManager uiManager = UIManager.getInstance();	
-	private Toast toast;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		toast = Toast.makeText(this, "", Toast.LENGTH_SHORT);
 		uiManager.setControllerEventListener(this);
 		View view = uiManager.getLayout(this);
+		if (view == null) {
+			Toast.makeText(this, "Invalid Layout", Toast.LENGTH_SHORT).show();
+			this.finish();
+			return;
+		}
+			
 		setContentView(view);
 		
 		ConActivity = this;

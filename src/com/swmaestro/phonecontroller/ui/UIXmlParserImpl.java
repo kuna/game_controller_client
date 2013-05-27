@@ -44,6 +44,9 @@ public class UIXmlParserImpl implements UIXmlParser{
             if(name.equals("Button")){
                 list.add(readButtonComponent(parser));
             }
+            else if(name.equals("TextView")){
+                list.add(readTextViewComponent(parser));
+            }
             else{
                 skip(parser);
             }
@@ -83,6 +86,29 @@ public class UIXmlParserImpl implements UIXmlParser{
         hm.put("pressed", parser.getAttributeValue(ns, "pressed"));
         hm.put("sound", parser.getAttributeValue(ns, "sound"));
         hm.put("key", parser.getAttributeValue(ns, "key"));
+        
+        parser.nextTag();
+        
+        return hm;
+    }
+	
+	private HashMap<String, String> readTextViewComponent(XmlPullParser parser)
+            throws XmlPullParserException, IOException{
+ 
+        parser.require(XmlPullParser.START_TAG, ns, "TextView");
+        
+        HashMap<String, String> hm = new HashMap<String, String>();
+        
+        hm.put("component", "TextView");
+        hm.put("id", parser.getAttributeValue(ns, "id"));
+        hm.put("text", parser.getAttributeValue(ns, "text"));
+        hm.put("width", parser.getAttributeValue(ns, "width"));
+        hm.put("height", parser.getAttributeValue(ns, "height"));
+        hm.put("x", parser.getAttributeValue(ns, "x"));
+        hm.put("y", parser.getAttributeValue(ns, "y"));
+        hm.put("background", parser.getAttributeValue(ns, "background"));
+        hm.put("color", parser.getAttributeValue(ns, "color"));
+        hm.put("size", parser.getAttributeValue(ns, "size"));
         
         parser.nextTag();
         
