@@ -79,7 +79,12 @@ public class ISensor {
 						mAngleX = values[0];
 						mAngleY = values[1];
 						mAngleZ = values[2];
-	
+
+						if (mAccelX < 3 && mAccelZ > 17)
+							SendEvent(Util.EVENT_MOVE_UP, 0, null);
+						if (mAccelX < -3 && mAccelZ < 3)
+							SendEvent(Util.EVENT_MOVE_DOWN, 0, null);
+
 						SendEvent(Util.EVENT_SENSOR_ACCL, 0, String.format("%f,%f,%f", mAccelX, mAccelY, mAccelZ));
 						SendEvent(Util.EVENT_SENSOR_ANGLE, 0, String.format("%f,%f,%f", 
 								Radian2Degree(mAngleX-cali_AngleX), Radian2Degree(mAngleY-cali_AngleY), Radian2Degree(mAngleZ-cali_AngleZ)));

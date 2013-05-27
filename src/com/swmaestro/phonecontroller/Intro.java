@@ -104,15 +104,25 @@ public class Intro extends Activity {
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
-        			Log.v("BUTTON", mDs.GetString());
         			mWifi.SendData(mDs.GetString());
         			break;
         		case Util.EVENT_BUTTON_UP:
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
-        			Log.v("BUTTON", mDs.GetString());
         			mWifi.SendData(mDs.GetString());
+        			break;
+        		case Util.EVENT_MOVE_DOWN:
+        			mDs = new DataStructure();
+        			mDs.event = m.what;
+        			mDs.detail = "";
+        			//mWifi.SendData(mDs.GetString());
+        			break;
+        		case Util.EVENT_MOVE_UP:
+        			mDs = new DataStructure();
+        			mDs.event = m.what;
+        			mDs.detail = "";
+        			//mWifi.SendData(mDs.GetString());
         			break;
         		case Util.CONN_QUIT:
         			/*
@@ -128,7 +138,10 @@ public class Intro extends Activity {
         			 */
         			Toast.makeText(c, "QUIT from game", Toast.LENGTH_SHORT).show();
         			
-        			if (mSensor != null) mSensor.stopSensor();
+        			if (mSensor != null) {
+        				mSensor.stopSensor();
+        				mSensor = null;
+        			}
         			
         			setContentView(R.layout.dlg_connect);
         			setupButtonEvent();
@@ -183,10 +196,10 @@ public class Intro extends Activity {
         			
         			/*
         			 * Enable Sensor
-        			 *//*
+        			 */
         	        mSensor = new ISensor();
         	        mSensor.Initalize(this, c);
-        	        mSensor.calibrateOri();*/
+        	        mSensor.calibrateOri();
         	        break;
         		case Util.EVENT_MODIFY:
         			args = (String[]) m.obj;
@@ -243,7 +256,6 @@ public class Intro extends Activity {
         mWifi = new IWifi();
         IWifi.AddHandler(mHandler);
         mWifi.Connect(Util.SERVER_IP, Util.SERVER_PORT);
-        
         /*
          * Test case start
          * 

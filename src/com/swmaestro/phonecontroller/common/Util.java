@@ -6,7 +6,7 @@ public class Util {
 	final public static int THREAD_DELAY = 50;
 	
 	// Server Connection
-	final public static String SERVER_IP = "147.46.240.46";
+	final public static String SERVER_IP = "121.133.1.250";//"192.168.0.13";
 	final public static int SERVER_PORT = 1236;
 	
 	// Network Event Consts
@@ -18,6 +18,9 @@ public class Util {
 	
 	final public static int EVENT_BUTTON_DOWN = 300;
 	final public static int EVENT_BUTTON_UP = 301;
+
+	final public static int EVENT_MOVE_UP = 400;
+	final public static int EVENT_MOVE_DOWN = 401;
 	
 	final public static int EVENT_CLOSE = 999;
 	
