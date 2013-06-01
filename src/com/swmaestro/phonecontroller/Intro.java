@@ -113,12 +113,14 @@ public class Intro extends Activity {
         			mWifi.SendData(mDs.GetString());
         			break;
         		case Util.EVENT_MOVE_DOWN:
+        			Log.i("MOVE", "DOWN");
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = "";
         			//mWifi.SendData(mDs.GetString());
         			break;
         		case Util.EVENT_MOVE_UP:
+        			Log.i("MOVE", "UP");
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = "";
@@ -184,7 +186,7 @@ public class Intro extends Activity {
         			break;
         		case Util.CONN_JOIN:
         			Util.CONN_ID = (String) m.obj;
-        			Toast.makeText(c, "Successfully Joined. waiting for other players...", Toast.LENGTH_SHORT)
+        			Toast.makeText(c, "Completed join, and calibrating. PLEASE DON\'T MOVE PHONE!", Toast.LENGTH_SHORT)
         			.show();
         			break;
         		case Util.CONN_JOINALL:
@@ -279,6 +281,7 @@ public class Intro extends Activity {
          * 
          * Test case end
          */
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.swmaestro.phonecontroller.ui.components;
 
 ///import com.swmaestro.phonecontroller.R;
+import com.swmaestro.phonecontroller.ui.ComponentBuilderImpl;
 import com.swmaestro.phonecontroller.ui.ControllerEventListener;
 import com.swmaestro.phonecontroller.ui.UIManager;
 import com.swmaestro.phonecontroller.ui.model.ControllerEvent;
@@ -26,7 +27,14 @@ public class Controller extends Activity implements ControllerEventListener{
 		}
 			
 		setContentView(view);
-		
+		if (ComponentBuilderImpl.sound != null) {
+			try {
+				Thread.sleep(700);
+				ComponentBuilderImpl.sound.play(ComponentBuilderImpl.soundId, 2.0f, 2.0f, 0, 0, 1.0f);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		ConActivity = this;
 	}
 

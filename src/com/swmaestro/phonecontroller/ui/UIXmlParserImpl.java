@@ -64,6 +64,7 @@ public class UIXmlParserImpl implements UIXmlParser{
         hm.put("component", "Layout");
         hm.put("orientation", parser.getAttributeValue(ns, "orientation"));
         hm.put("background", parser.getAttributeValue(ns, "background"));
+        hm.put("sound", parser.getAttributeValue(ns, "sound"));
         
         return hm;
 	}
@@ -109,6 +110,7 @@ public class UIXmlParserImpl implements UIXmlParser{
         hm.put("background", parser.getAttributeValue(ns, "background"));
         hm.put("color", parser.getAttributeValue(ns, "color"));
         hm.put("size", parser.getAttributeValue(ns, "size"));
+        hm.put("center", parser.getAttributeValue(ns, "center"));
         
         parser.nextTag();
         

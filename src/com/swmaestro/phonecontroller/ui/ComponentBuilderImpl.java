@@ -8,9 +8,12 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.AudioManager;
+import android.media.SoundPool;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
@@ -23,7 +26,10 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 	private Context context;
 	private AbsoluteLayout layout;
 	private UIResourceManager uiResManager;
+	
 	public static Bitmap layoutBitmap ;
+	public static SoundPool sound;
+	public static int soundId;
 	
 	public View buildLayout(Context context, List<HashMap<String, String>> components, UIResourceManager uiResManager) throws Exception {
 		this.context = context;
@@ -64,8 +70,21 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			}
 			
 			layoutBitmap = BitmapFactory.decodeFile(resPath); // bitmap should be recycled
-			BitmapDrawable bd = new BitmapDrawable(layoutBitmap);
-			layout.setBackgroundDrawable(bd);
+			layout.setBackgroundDrawable(new BitmapDrawable(layoutBitmap));
+		}
+		if (component.get("sound") != null) {
+			String resPath = uiResManager.getResourceAbsolutePath(component.get("sound"));
+			if (resPath == null)
+				throw new Exception(component.get("sound")  + " does not exist");
+			
+			if (sound != null) {
+				sound.autoPause();
+				sound.release();
+				sound = null;
+			}
+
+			sound = new  SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+			soundId = sound.load(resPath, 1);
 		}
 	}
 
@@ -166,12 +185,17 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		
 		if (component.get("color") != null) {
 			// proc color from 0x16 integer
+			btn.setTextColor(Color.parseColor( component.get("color").replace("^0x", "") ));
 		} else {
 			btn.setTextColor(0xFFFFFFFF);
 		}
 		
 		if (component.get("size") != null) {
 			btn.setTextSize( Float.parseFloat(component.get("size") ));
+		}
+		
+		if (component.get("center") != null) {
+			btn.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
 		}
 		
 		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));
