@@ -1,32 +1,39 @@
-<ControllerLayout orientation='HORIZONTAL'>
+<ControllerLayout orientation='HORIZONTAL'
+    background='bg.jpg'>
     <TextView 
-        id='100'
-        text='GameGameGameGmaeGmaeGmaegma'
-        width='200'
-        height='50'
-        x='140'
-        y='200'
+        id='101'
+        text=''
+        width='480'
+        height='800'
+        x='0'
+        y='0'
+		background='grass_overlay.png'
 	/>
+	
     <Button 
         id='1'
-        text='1'
-        width='200'
-        height='200'
-        x='26'
-        y='520'
-        background='a_off_button.png' 
-        pressed='a_on_button.png' 
-        sound='a_sound.mp3'
+        text=''
+        width='240'
+        height='660'
+        x='0'
+        y='0'
+        background='flag_blue_down.png' 
+        pressed='flag_blue_up.png' 
+        sound='blue.ogg'
 	/>
     <Button 
         id='2'
-        text='2'
-        width='200'
-        height='200'
-        x='253'
-        y='520'
-        background='a_on_button.png' 
-        pressed='a_off_button.png' 
-        sound='a_sound.mp3'
+        text=''
+        width='240'
+        height='660'
+        x='240'
+        y='0'
+        background='flag_white_down.png' 
+        pressed='flag_white_up.png' 
+        sound='white.ogg'
 	/>
+    
+  	<Motion
+  	    name='up down'
+  	/>
 </ControllerLayout>

@@ -1,0 +1,26 @@
+<ControllerLayout orientation='HORIZONTAL'>
+    <TextView
+        id='99'
+        text='버튼을 누른 상태로 왼쪽/오른쪽으로 움직여 플레이 수를 정하고 원을 그려 선택을 마치십시오.'
+        width='480'
+        height='200'
+        x='0'
+        y='160'
+        center='true'
+    />
+    
+  	<Button
+		id='101'
+		text=''
+		width='160'
+		height='160'
+		x='160'
+		y='480'
+        background='a_off_button.png'
+        pressed='a_on_button.png'
+	/>
+  	
+  	<Motion
+  	    name='circle right left'
+  	/>
+</ControllerLayout>

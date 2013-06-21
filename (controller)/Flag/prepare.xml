@@ -1,0 +1,26 @@
+<ControllerLayout orientation='HORIZONTAL'>
+    <TextView
+        id='99'
+        text='게임을 시작하려면 버튼을 누르고 한 바퀴 돌려주세요.'
+        width='480'
+        height='200'
+        x='0'
+        y='160'
+        center='true'
+    />
+    
+  	<Button
+		id='101'
+		text=''
+		width='160'
+		height='160'
+		x='160'
+		y='480'
+        background='a_off_button.png'
+        pressed='a_on_button.png'
+	/>
+  	
+  	<Motion
+  	    name='circle'
+  	/>
+</ControllerLayout>
