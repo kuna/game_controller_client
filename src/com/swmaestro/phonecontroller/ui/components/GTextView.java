@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 public class GTextView extends TextView {
@@ -32,6 +33,14 @@ public class GTextView extends TextView {
 		
 		this.backgroundImg = backgroundImg;
 		setBackgroundDrawable(new BitmapDrawable(this.backgroundImg));
+	}
+	
+	public void setDisplay(String d) {
+		if (d.compareTo("true") == 0) {
+			this.setVisibility(View.VISIBLE);
+		} else if (d.compareTo("false") == 0) {
+			this.setVisibility(View.INVISIBLE);
+		}
 	}
 	
 	@Override

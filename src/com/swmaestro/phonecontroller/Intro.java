@@ -1,14 +1,31 @@
 package com.swmaestro.phonecontroller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import kr.soma.classifier.HMM;
+import kr.soma.controller.GestureController;
+import kr.soma.events.AccelerationEvent;
+import kr.soma.events.AccelerationListener;
+import kr.soma.events.RecognitionEvent;
+import kr.soma.events.RecognitionListener;
+import kr.soma.filter.Direction;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -23,32 +40,185 @@ import com.swmaestro.phonecontroller.bluetooth.BluetoothConnect;
 import com.swmaestro.phonecontroller.common.DataStructure;
 import com.swmaestro.phonecontroller.common.Util;
 import com.swmaestro.phonecontroller.sensor.ISensor;
+import com.swmaestro.phonecontroller.ui.ComponentBuilderImpl;
 import com.swmaestro.phonecontroller.ui.ComponentModifier;
 import com.swmaestro.phonecontroller.ui.UIManager;
 import com.swmaestro.phonecontroller.ui.dlg_Loading;
 import com.swmaestro.phonecontroller.ui.components.Controller;
+import com.swmaestro.phonecontroller.ui.components.GTextView;
 import com.swmaestro.phonecontroller.wifi.IWifi;
 import com.swmaestro.phonecontroller.wifi.IWifiUDP;
 
+import be.ac.ulg.montefiore.run.jahmm.Hmm;
+import be.ac.ulg.montefiore.run.jahmm.ObservationDiscrete;
+
+
 public class Intro extends Activity {
 	Context c;
-	//Bluetooth mBt;
-	//BluetoothConnect mBtc;
 	
-	IWifi mWifi; //<- TCP
-	//IWifiUDP mWifi;
+	IWifi mWifi; // TCP
 	ISensor mSensor;
     Handler mHandler;
     UIManager uiManager = null;
     
     Intent _intent = null;
+    private boolean running = true;
+    
+    // accel sensor detector
+    private static GestureController gc;
+    private SensorManager sm;
+    private Sensor accSensor;
+    private boolean recognitionMode;
+    private boolean sensordatasend = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_intro);
         c = this;
+        
+        setupHandlerEvent();
+        setupSensor();
+        
+        // set screen ratio
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        Util.SCREEN_RATIO = (double)dm.widthPixels / 480.0;
+        
+        /*
+         * Loading form
+         */
+        dlg_Loading.showLoading(c);
 
+		/*
+		 * Connection to Server
+		 */
+        mWifi = new IWifi();
+        IWifi.AddHandler(mHandler);
+        mWifi.Connect(Util.SERVER_IP, Util.SERVER_PORT);
+        /*
+         * Test case start
+         * 
+         *
+        
+        Thread t = new Thread() {
+        	public void run() {
+        		try {
+        			mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "game"}).sendToTarget();
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+        	}
+        };
+        t.start();
+         * 
+         * Test case end
+         */
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	   getMenuInflater().inflate(R.menu.activity_intro, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { 
+        	close();
+        } 
+        return true;
+    }
+    /*
+    @Override
+    protected void onPause() {
+    	super.onPause();
+    	if (sm != null)
+    		sm.unregisterListener(gc);    // unregister acceleration listener
+    }
+    
+    @Override
+    protected void onResume() {
+    	super.onResume();
+    	if (sm != null)
+    		sm.registerListener(gc, accSensor, SensorManager.SENSOR_DELAY_FASTEST);
+    }
+    */
+    @Override
+    public void onBackPressed() {
+    	close();
+    }
+    
+    public void close() {
+    	if(mSensor!=null) mSensor.stopSensor();
+		if(mWifi!=null) mWifi.close();
+		running = false;
+		finish();
+    }
+    
+	public void setupButtonEvent()
+	{
+    	Button btn_Connect = (Button)findViewById(R.id.btn_connect);
+    	btn_Connect.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+						TextView t = (TextView)findViewById(R.id.edit_connect);
+				if ( t.getText().equals("")) {
+					Toast.makeText(c, "Enter PIN Number", Toast.LENGTH_SHORT).show();
+					return;
+				}
+				
+				String str = String.format("JOIN %s", t.getText());
+				
+				dlg_Loading.showLoading(c);
+				mWifi.SendData(str);
+				}
+			});
+	}
+	
+	public void setupSensor() {
+		sm = (SensorManager)getSystemService(android.content.Context.SENSOR_SERVICE);
+		accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+		
+		gc = new GestureController();  // 제스쳐 인식 객체 생성 
+		gc.enableRecognitionMode(true); // 제스쳐 인식 모드 on
+		sm.registerListener(gc, accSensor, SensorManager.SENSOR_DELAY_FASTEST);
+		
+		setSensorModel(null);
+		
+		gc.addRecognitionListener(new RecognitionListener() {
+			public void doRecognitionProcess(RecognitionEvent event) {
+				switch(event.getMsg()) {
+				case GestureController.START_RECOGNITION:
+					Log.i("Sensor", "Motion Recognization start");
+				break;
+				case GestureController.END_RECOGNITION:
+					Log.i("Sensor", "Motion Recognization end");
+					if (event.getObj1() == null) {
+						Log.i("Sensor", "Unable to found current Gesture");
+					}
+					else {
+						Log.i("Sensor", ((HMM)event.getObj1()).getName());
+						mHandler.obtainMessage(Util.EVENT_GESTURE, 0, 0, ((HMM)event.getObj1()).getName()).sendToTarget();
+					}
+					break;
+				case GestureController.NOT_ENOUGH_DATA:
+					break;
+				}
+			}
+		});
+		
+		//
+		mSensor = new ISensor();
+		mSensor.Initalize(mHandler, c);
+	}
+	
+	public static void setSensorModel(ArrayList<String> name) {
+		Map<String, Hmm<ObservationDiscrete<Direction>>> hmms = gc.readModelsFromFiles(name); // GestureController/HMM 에 저장된 모든 모델 파일을 불러옴
+		gc.setModels(hmms); // 모델 객체들을  등록 
+	}
+	
+	public void setupHandlerEvent() {
         mHandler = new Handler() {
         	public void handleMessage(Message m) {
                 String args[];
@@ -83,34 +253,69 @@ public class Intro extends Activity {
         			if (args[0].equals("QUIT")) {
         				this.obtainMessage(Util.CONN_QUIT, 0, 0, args).sendToTarget();
         			}
+        			if (args[0].equals("SENDDATA")) {
+        				// start to send custom data
+        				// - after calibrate it
+        				mSensor.calibrateOri();
+        				sensordatasend = true;
+        			}
         			break;
         		case Util.EVENT_ERROR:
         			dlg_Loading.hideLoading();
         			Toast.makeText(c, "An Error occured.", Toast.LENGTH_SHORT).show();
         			break;
         		case Util.EVENT_SENSOR_ACCL:
-        			mDs = new DataStructure();
+        			/*mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = (String) m.obj;
-        			mWifi.SendData(mDs.GetString());
+        			if (sensordatasend)
+        				mWifi.SendData(mDs.GetString());*/
         			break;
         		case Util.EVENT_SENSOR_ANGLE:
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = (String) m.obj;
-        			mWifi.SendData(mDs.GetString());
+        			if (sensordatasend)
+        				mWifi.SendData(mDs.GetString());
         			break;
         		case Util.EVENT_BUTTON_DOWN:	// m.obj: Key
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
         			mWifi.SendData(mDs.GetString());
+        			
+        			// check Trigger variables
+        			for (HashMap<String, String> data : ComponentBuilderImpl.triggers) {
+        				if (data.get("id").equals( mDs.detail )) {
+							String[] objs = ((String) data.get("targetid")).split(" ");
+							for (String objName: objs) {
+								View obj = (View) Controller.ConActivity.findViewById( Integer.parseInt(objName) );
+								
+	        					// check option
+	        					if (data.get("attr").equals("display")) {
+	        						if (data.get("val").equals("true")) {
+	        							obj.setVisibility(View.VISIBLE);
+	        						} else if (data.get("val").equals("false")) {
+	        							obj.setVisibility(View.INVISIBLE);
+	        						}
+	        					}
+							}
+        				}
+        			}
+        			
+        			// gesture recognization start
+        			gc.startRecognition();
+        			
         			break;
         		case Util.EVENT_BUTTON_UP:
         			mDs = new DataStructure();
         			mDs.event = m.what;
         			mDs.detail = Integer.toString(m.arg1);
         			mWifi.SendData(mDs.GetString());
+        			
+        			// gesture recognization end
+        			gc.finishRecognition();
+        			
         			break;
         		case Util.EVENT_MOVE_DOWN:
         			Log.i("MOVE", "DOWN");
@@ -125,6 +330,12 @@ public class Intro extends Activity {
         			mDs.event = m.what;
         			mDs.detail = "";
         			//mWifi.SendData(mDs.GetString());
+        			break;
+        		case Util.EVENT_GESTURE:
+        			mDs = new DataStructure();
+        			mDs.event = m.what;
+        			mDs.detail = (String) m.obj;
+        			mWifi.SendData(mDs.GetString());
         			break;
         		case Util.CONN_QUIT:
         			/*
@@ -149,9 +360,12 @@ public class Intro extends Activity {
         			setupButtonEvent();
         			break;
         		case Util.CONN_CLOSE:
+        			if (!running)
+        				break;
+        			
         			/*
         			 * close program
-        			 */
+        			 */        			
         			AlertDialog.Builder alert = new AlertDialog.Builder(c);
 
     				alert.setTitle("Server Disconnected");
@@ -162,7 +376,7 @@ public class Intro extends Activity {
     						close();
     					}
     				});
-
+    				
     				alert.show();
         			break;
         		case Util.CONN_FAIL:
@@ -199,9 +413,7 @@ public class Intro extends Activity {
         			/*
         			 * Enable Sensor
         			 */
-        	        mSensor = new ISensor();
-        	        mSensor.Initalize(this, c);
-        	        mSensor.calibrateOri();
+        			//setupSensor();
         	        break;
         		case Util.EVENT_MODIFY:
         			args = (String[]) m.obj;
@@ -246,99 +458,6 @@ public class Intro extends Activity {
         		}
         	}
         };
-
-        /*
-         * Loading form
-         */
-        dlg_Loading.showLoading(c);
-
-		/*
-		 * Connection to Server
-		 */
-        mWifi = new IWifi();
-        IWifi.AddHandler(mHandler);
-        mWifi.Connect(Util.SERVER_IP, Util.SERVER_PORT);
-        /*
-         * Test case start
-         * 
-         * 
-        Thread t = new Thread() {
-        	public void run() {
-        		try {
-        			mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "select"}).sendToTarget();
-					Thread.sleep(3000);
-        			//mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "sdfasd"}).sendToTarget();
-					//Thread.sleep(3000);
-        			mHandler.obtainMessage(Util.EVENT_EDIT, 0, 0, new String[]{"", "", "1001", "button", "x", "10"}).sendToTarget();
-					Thread.sleep(3000);
-        			mHandler.obtainMessage(Util.EVENT_EDIT, 0, 0, new String[]{"", "", "103425", "button", "x", "10"}).sendToTarget();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-        	}
-        };
-        t.start();
-         * 
-         * Test case end
-         */
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	   getMenuInflater().inflate(R.menu.activity_intro, menu);
-        return true;
-    }
-    
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) { 
-        	close();
-        } 
-        return true;
-    }
-    
-    @Override
-    public void onBackPressed() {
-    	//close();
-    }
-    
-    public void close() {
-    	if(mSensor!=null) mSensor.stopSensor();
-		if(mWifi!=null) mWifi.close();
-		finish();
-    }
-    
-  public void setupButtonEvent()
-  {
-    	Button btn_Connect = (Button)findViewById(R.id.btn_connect);
-    	btn_Connect.setOnClickListener(new OnClickListener() {
-			public void onClick(View v) {
-						TextView t = (TextView)findViewById(R.id.edit_connect);
-				String str = String.format("JOIN %s", t.getText());
-				
-				dlg_Loading.showLoading(c);
-				mWifi.SendData(str);
-				}
-			});
-    	
-    	/*
-    	Button b1 = (Button)findViewById(R.id.btnGogun);
-    	b1.setOnClickListener(new OnClickListener() {
-			public void onClick(View arg0) {      
-				UIManager uiManager = UIManager.getInstance();
-				uiManager.setHandler(mHandler);
-				uiManager.showController(c, "gogun", "ui");
-			}
-        });
-        
-    	Button b2 = (Button)findViewById(R.id.btnRacing);
-    	b2.setOnClickListener(new OnClickListener() {
-			public void onClick(View arg0) {
-				UIManager uiManager = UIManager.getInstance();
-				uiManager.setHandler(mHandler);
-				uiManager.showController(c, "racing", "ui");
-			}
-        });*/
 	}
 }
+

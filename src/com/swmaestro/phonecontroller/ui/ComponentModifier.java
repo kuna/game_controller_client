@@ -1,5 +1,6 @@
 package com.swmaestro.phonecontroller.ui;
 
+import com.swmaestro.phonecontroller.common.Util;
 import com.swmaestro.phonecontroller.ui.components.GButton;
 import com.swmaestro.phonecontroller.ui.components.GTextView;
 
@@ -27,17 +28,17 @@ public class ComponentModifier {
 	public static boolean ModifyButton(GButton b, String objattr, String objval) {
 		try {
 			if (objattr.compareToIgnoreCase("x") ==0) {
-				b.setX( (float) Double.parseDouble(objval) );
+				b.setX( (float)( Double.parseDouble(objval) * Util.SCREEN_RATIO ));
 			}
 			if (objattr.compareToIgnoreCase("y") ==0) {
-				b.setY( (float) Double.parseDouble(objval) );
+				b.setY( (float)( Double.parseDouble(objval) * Util.SCREEN_RATIO ));
 			}
 
 			if (objattr.compareToIgnoreCase("width")==0) {
-				b.getLayoutParams().width = Integer.parseInt(objval);
+				b.getLayoutParams().width = (int) (Integer.parseInt(objval) * Util.SCREEN_RATIO);
 			}
 			if (objattr.compareToIgnoreCase("height")==0) {
-				b.getLayoutParams().height = Integer.parseInt(objval);
+				b.getLayoutParams().height = (int) (Integer.parseInt(objval) * Util.SCREEN_RATIO);
 			}
 
 			if (objattr.compareToIgnoreCase("visible")==0) {

@@ -17,11 +17,18 @@ public class Controller extends Activity implements ControllerEventListener{
 	private UIManager uiManager = UIManager.getInstance();	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		uiManager.setControllerEventListener(this);
-		View view = uiManager.getLayout(this);
-		if (view == null) {
-			Toast.makeText(this, "Invalid Layout", Toast.LENGTH_SHORT).show();
+		View view;
+		try {
+			super.onCreate(savedInstanceState);
+			uiManager.setControllerEventListener(this);
+			view = uiManager.getLayout(this);
+			if (view == null) {
+				Toast.makeText(this, "Invalid Layout", Toast.LENGTH_SHORT).show();
+				this.finish();
+				return;
+			}
+		} catch (Exception e) {
+			Toast.makeText(this, "Error during creating Layout", Toast.LENGTH_SHORT).show();
 			this.finish();
 			return;
 		}

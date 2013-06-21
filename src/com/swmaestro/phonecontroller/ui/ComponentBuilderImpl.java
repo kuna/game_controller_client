@@ -1,5 +1,6 @@
 package com.swmaestro.phonecontroller.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -18,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AbsoluteLayout;
 
+import com.swmaestro.phonecontroller.Intro;
+import com.swmaestro.phonecontroller.common.Util;
 import com.swmaestro.phonecontroller.ui.components.GButton;
 import com.swmaestro.phonecontroller.ui.components.GTextView;
 
@@ -30,11 +33,16 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 	public static Bitmap layoutBitmap ;
 	public static SoundPool sound;
 	public static int soundId;
+	public static ArrayList<HashMap<String, String>> triggers;
+	public static ArrayList<String> motions;
 	
 	public View buildLayout(Context context, List<HashMap<String, String>> components, UIResourceManager uiResManager) throws Exception {
 		this.context = context;
 		this.uiResManager = uiResManager;
 		this.layout = new AbsoluteLayout(context);
+		triggers = new ArrayList<HashMap<String, String>>();
+		motions = new ArrayList<String>();
+		
 		layout.setLayoutParams(new AbsoluteLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 0, 0));
 		for(HashMap<String, String> component : components) {
 			Log.i("LAYOUTCREATE", component.get("component"));
@@ -48,6 +56,15 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 			if (component.get("component").equals("TextView")) {
 				GTextView btn = new GTextView(context);
 				setTextViewAttributes(btn, component);
+			}
+			if (component.get("component").equals("Trigger")) {
+				triggers.add(component);
+			}
+			if (component.get("component").equals("Motion")) {
+				String[] ms = component.get("name").split(" ");
+				for (String _s : ms)
+					motions.add(_s);
+				Intro.setSensorModel(motions);
 			}
 		}
 		return layout;
@@ -97,22 +114,22 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		if (component.get("height") == null) {
 			throw new Exception("Height of button must be described!");
 		}
-		int height = Integer.parseInt(component.get("height"));
+		int height = (int) (Integer.parseInt(component.get("height")) * Util.SCREEN_RATIO);
 		
 		if (component.get("width") == null) {
 			throw new Exception("Width of button must be described!");
 		}
-		int width = Integer.parseInt(component.get("width"));
+		int width = (int) (Integer.parseInt(component.get("width")) * Util.SCREEN_RATIO);
 		
 		if (component.get("x") == null) {
 			throw new Exception("x must be described!");
 		}
-		int x = Integer.parseInt(component.get("x"));
+		int x = (int) (Integer.parseInt(component.get("x")) * Util.SCREEN_RATIO);
 		
 		if (component.get("y") == null) {
 			throw new Exception("y must be described!");
 		}
-		int y = Integer.parseInt(component.get("y"));
+		int y = (int) (Integer.parseInt(component.get("y")) * Util.SCREEN_RATIO);
 		
 		if (component.get("text") != null)
 			btn.setText((CharSequence)component.get("text"));
@@ -137,9 +154,13 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 				throw new Exception(component.get("background")  + " does not exist");
 			btn.setSound(resPath);
 		}
-		
+
 		if (component.get("key") != null) {
 			btn.setKey(component.get("key"));
+		}
+
+		if (component.get("display") != null) {
+			btn.setDisplay(component.get("display"));
 		}
 		
 		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));
@@ -156,22 +177,22 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		if (component.get("height") == null) {
 			throw new Exception("Height of button must be described!");
 		}
-		int height = Integer.parseInt(component.get("height"));
+		int height = (int) (Integer.parseInt(component.get("height")) * Util.SCREEN_RATIO);
 		
 		if (component.get("width") == null) {
 			throw new Exception("Width of button must be described!");
 		}
-		int width = Integer.parseInt(component.get("width"));
+		int width = (int) (Integer.parseInt(component.get("width")) * Util.SCREEN_RATIO);
 		
 		if (component.get("x") == null) {
 			throw new Exception("x must be described!");
 		}
-		int x = Integer.parseInt(component.get("x"));
+		int x = (int) (Integer.parseInt(component.get("x")) * Util.SCREEN_RATIO);
 		
 		if (component.get("y") == null) {
 			throw new Exception("y must be described!");
 		}
-		int y = Integer.parseInt(component.get("y"));
+		int y = (int) (Integer.parseInt(component.get("y")) * Util.SCREEN_RATIO);
 		
 		if (component.get("text") != null)
 			btn.setText((CharSequence)component.get("text"));
@@ -196,6 +217,10 @@ public class ComponentBuilderImpl implements ComponentBuilder{
 		
 		if (component.get("center") != null) {
 			btn.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
+		}
+
+		if (component.get("display") != null) {
+			btn.setDisplay(component.get("display"));
 		}
 		
 		layout.addView(btn, new AbsoluteLayout.LayoutParams(width, height, x, y));

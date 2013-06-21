@@ -10,6 +10,7 @@ import android.media.SoundPool;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 
 public class GButton extends Button {
@@ -93,6 +94,14 @@ public class GButton extends Button {
 	public void playSound() {
 		if (soundId != null)
 			sound.play(soundId, 2.0f, 2.0f, 0, 0, 1.0f);
+	}
+	
+	public void setDisplay(String d) {
+		if (d.compareTo("true") == 0) {
+			this.setVisibility(View.VISIBLE);
+		} else if (d.compareTo("false") == 0) {
+			this.setVisibility(View.INVISIBLE);
+		}
 	}
 	
 	@SuppressWarnings("deprecation")

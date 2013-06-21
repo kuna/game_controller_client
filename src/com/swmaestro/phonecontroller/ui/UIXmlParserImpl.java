@@ -47,6 +47,16 @@ public class UIXmlParserImpl implements UIXmlParser{
             else if(name.equals("TextView")){
                 list.add(readTextViewComponent(parser));
             }
+            else if(name.equals("Animation")){
+            	// I cant handle it now ... ignore it...
+                skip(parser);
+            }
+            else if(name.equals("Trigger")){
+                list.add(readTrigger(parser));
+            }
+            else if(name.equals("Motion")){
+                list.add(readMotion(parser));
+            }
             else{
                 skip(parser);
             }
@@ -85,6 +95,7 @@ public class UIXmlParserImpl implements UIXmlParser{
         hm.put("y", parser.getAttributeValue(ns, "y"));
         hm.put("background", parser.getAttributeValue(ns, "background"));
         hm.put("pressed", parser.getAttributeValue(ns, "pressed"));
+        hm.put("display", parser.getAttributeValue(ns, "display"));
         hm.put("sound", parser.getAttributeValue(ns, "sound"));
         hm.put("key", parser.getAttributeValue(ns, "key"));
         
@@ -108,9 +119,43 @@ public class UIXmlParserImpl implements UIXmlParser{
         hm.put("x", parser.getAttributeValue(ns, "x"));
         hm.put("y", parser.getAttributeValue(ns, "y"));
         hm.put("background", parser.getAttributeValue(ns, "background"));
+        hm.put("display", parser.getAttributeValue(ns, "display"));
         hm.put("color", parser.getAttributeValue(ns, "color"));
         hm.put("size", parser.getAttributeValue(ns, "size"));
         hm.put("center", parser.getAttributeValue(ns, "center"));
+        
+        parser.nextTag();
+        
+        return hm;
+    }
+	
+	private HashMap<String, String> readTrigger(XmlPullParser parser)
+            throws XmlPullParserException, IOException{
+ 
+        parser.require(XmlPullParser.START_TAG, ns, "Trigger");
+        
+        HashMap<String, String> hm = new HashMap<String, String>();
+        
+        hm.put("component", "Trigger");
+        hm.put("id", parser.getAttributeValue(ns, "id"));
+        hm.put("targetid", parser.getAttributeValue(ns, "targetid"));
+        hm.put("attr", parser.getAttributeValue(ns, "attr"));
+        hm.put("val", parser.getAttributeValue(ns, "val"));
+        
+        parser.nextTag();
+        
+        return hm;
+    }
+	
+	private HashMap<String, String> readMotion(XmlPullParser parser)
+            throws XmlPullParserException, IOException{
+ 
+        parser.require(XmlPullParser.START_TAG, ns, "Motion");
+        
+        HashMap<String, String> hm = new HashMap<String, String>();
+        
+        hm.put("component", "Motion");
+        hm.put("name", parser.getAttributeValue(ns, "name"));
         
         parser.nextTag();
         
