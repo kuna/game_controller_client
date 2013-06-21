@@ -1,0 +1,31 @@
+package kr.soma.filter;
+
+import kr.soma.model.Point;
+
+public enum Direction {
+	/*
+	EAST,
+	FORWARD_EAST,
+	FORWARD,
+	FORWARD_WEST,
+	WEST,
+	BACKWARD_WEST,
+	BACKWARD,
+	BACKWARD_EAST,
+	NORTH,
+	FORWARD_NORTH,
+	FORWARD_SOUTH,
+	SOUTH,
+	BACKWARD_SOUTH,
+	BACKWARD_NORTH
+	*/
+	NORTH,
+	NORTH_EAST,
+	EAST,
+	SOUTH_EAST,
+	SOUTH,
+	SOUTH_WEST,
+	WEST,
+	NORTH_WEST
+	
+}
