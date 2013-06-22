@@ -71,7 +71,7 @@ public class FileIO {
 			
 			if (modelNames != null) {
 				for (String modelName : modelNames) {
-					fileName = modelName + ".hmm";
+					fileName = modelName + ".model";
 					File f = new File(hmmDir+File.separator + fileName);
 					in = new BufferedReader(new FileReader(f)); 
 

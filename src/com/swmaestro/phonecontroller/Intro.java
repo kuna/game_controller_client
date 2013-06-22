@@ -104,7 +104,7 @@ public class Intro extends Activity {
         Thread t = new Thread() {
         	public void run() {
         		try {
-        			mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "game"}).sendToTarget();
+        			mHandler.obtainMessage(Util.EVENT_MODIFY, 0, 0, new String[]{"", "", "Flag", "prepare"}).sendToTarget();
 					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -214,6 +214,9 @@ public class Intro extends Activity {
 	}
 	
 	public static void setSensorModel(ArrayList<String> name) {
+		if (name == null) return;
+		
+		Log.i("SENSORMODEL", name.toString());
 		Map<String, Hmm<ObservationDiscrete<Direction>>> hmms = gc.readModelsFromFiles(name); // GestureController/HMM 에 저장된 모든 모델 파일을 불러옴
 		gc.setModels(hmms); // 모델 객체들을  등록 
 	}
